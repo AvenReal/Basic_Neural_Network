@@ -35,7 +35,7 @@ class Matrix {
 
         Matrix operator*(const Matrix& other) {
             if (Height != other.Width)
-                throw std::runtime_error( std::format( "Matrix Multiplication: Invalid dimensions: (%d, %d) * (%d, %d)", Width, Height, other.Width, other.Height) );
+                throw std::runtime_error( "Matrix Multiplication: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") * (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
 
             Matrix result = Matrix(Width, other.Height);
 
@@ -55,7 +55,7 @@ class Matrix {
 
         Matrix operator+(const Matrix& other) {
             if (Height != other.Height || Width != other.Width)
-                throw std::runtime_error( std::format( "Matrix Addition: Invalid dimensions: (%d, %d) + (%d, %d)", Width, Height, other.Width, other.Height));
+                throw std::runtime_error( "Matrix Addition: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") + (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
 
             Matrix result = Matrix(Width, Height);
 
@@ -67,7 +67,22 @@ class Matrix {
 
             return result;
         }
+
+        [[nodiscard]] std::string ToString() const {
+            std::string result;
+            for (int i = 0; i < Height; ++i) {
+                result += i == 0 ? '[' : (i == Height -1 ? '[' : '|');
+                for (int j = 0; j < Width; ++j) {
+                    result += std::to_string(matrix[i][j]) + "\t";
+                }
+                result += i == 0 ? ']' : (i == Height -1 ? ']' : '|');
+                result += '\n';
+            }
+
+            return result;
+        }
 };
 
+std::ostream& operator<<(std::ostream& os, Matrix& other);
 
 #endif //BASIC_NEURAL_NETWORK_MATRIX_H
