@@ -33,7 +33,7 @@ class Matrix {
         }
 
 
-        Matrix operator*(const Matrix& other) {
+        Matrix operator*(const Matrix& other) const {
             if (Height != other.Width)
                 throw std::runtime_error( "Matrix Multiplication: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") * (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
 
@@ -52,8 +52,7 @@ class Matrix {
             }
             return result;
         }
-
-        Matrix operator+(const Matrix& other) {
+        Matrix operator+(const Matrix& other) const {
             if (Height != other.Height || Width != other.Width)
                 throw std::runtime_error( "Matrix Addition: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") + (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
 
@@ -68,7 +67,32 @@ class Matrix {
             return result;
         }
 
-        [[nodiscard]] std::string ToString() const {
+        Matrix& operator=(const Matrix& other) {
+            if (this == &other)
+                return *this;
+
+            if (Height != other.Height || Width != other.Width)
+                throw std::runtime_error( "Matrix Replacement (operator=): Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") = (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
+
+            for (int i = 0; i < Height; ++i) {
+                for (int j = 0; j < Width; ++j) {
+                    matrix[i][j] = other.matrix[i][j];
+                }
+            }
+
+            return *this;
+        }
+
+        void Set(const int x, const int y, const double value) const {
+            matrix[y][x] = value;
+        }
+
+        double get(int x, int y) const {
+            return matrix[y][x];
+        }
+
+
+        std::string ToString() const {
             std::string result;
             for (int i = 0; i < Height; ++i) {
                 result += i == 0 ? '[' : (i == Height -1 ? '[' : '|');
