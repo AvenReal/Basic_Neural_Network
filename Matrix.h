@@ -5,6 +5,7 @@
 #ifndef BASIC_NEURAL_NETWORK_MATRIX_H
 #define BASIC_NEURAL_NETWORK_MATRIX_H
 #include <format>
+#include <iostream>
 #include <stdexcept>
 
 
@@ -16,7 +17,7 @@ class Matrix {
         int Width;
         int Height;
 
-        Matrix(int width, int height) {
+        Matrix(int height, int width) {
             Width = width;
             Height = height;
             matrix = new double*[Height];
@@ -24,7 +25,14 @@ class Matrix {
                 matrix[i] = new double[Width];
             }
         }
-
+        Matrix(int height, int width,double** array, bool destroy = true) {
+            Width = width;
+            Height = height;
+            matrix = new double*[Height];
+            for (int i = 0; i < Height; i++) {
+                matrix[i] = new double[Width];
+            }
+        }
         ~Matrix() {
             for (int i = 0; i < Height; i++) {
                 delete[] matrix[i];
@@ -34,29 +42,30 @@ class Matrix {
 
 
         Matrix operator*(const Matrix& other) const {
-            if (Height != other.Width)
-                throw std::runtime_error( "Matrix Multiplication: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") * (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
+            if (Width != other.Height)
+                throw std::runtime_error( "Matrix Multiplication: Invalid dimensions: (" + std::to_string(Height) + ", " + std::to_string(Width) + ") * (" + std::to_string(other.Height) + ", " + std::to_string(other.Width)  + ")." );
 
-            Matrix result = Matrix(Width, other.Height);
+            Matrix result = Matrix(other.Height, Width);
 
-            for (int h = 0; h < result.Height; ++h) {
-                for (int w = 0; w < result.Width; ++w) {
+            for (int line = 0; line < result.Height; ++line) {
+                for (int col = 0; col < result.Width; ++col) {
                     double n = 0;
-                    for (int y = 0; y < result.Height; ++y) {
-                        for (int x = 0; x < result.Width; ++x) {
-                            n += matrix[h][x] * matrix[y][w];
-                        }
+                    for (int i = 0; i < result.Width; ++i) {
+                        n += matrix[line][i] * other.matrix[i][col];
                     }
-                    result.matrix[h][w] = n;
+                    result.matrix[line][col] = n;
                 }
             }
             return result;
+        }
+        Matrix operator*(const int n) const {
+            Matrix result = *this;
         }
         Matrix operator+(const Matrix& other) const {
             if (Height != other.Height || Width != other.Width)
                 throw std::runtime_error( "Matrix Addition: Invalid dimensions: (" + std::to_string(Width) + ", " + std::to_string(Height) + ") + (" + std::to_string(other.Width) + ", " + std::to_string(other.Height)  + ")." );
 
-            Matrix result = Matrix(Width, Height);
+            Matrix result = Matrix(Height, Width);
 
             for (int i = 0; i < Height; ++i) {
                 for (int j = 0; j < other.Width; ++j) {
@@ -95,12 +104,12 @@ class Matrix {
         std::string ToString() const {
             std::string result;
             for (int i = 0; i < Height; ++i) {
-                result += i == 0 ? '[' : (i == Height -1 ? '[' : '|');
+                result += i == 0 ? "[ " : (i == Height -1 ? "[ " : "| ");
                 for (int j = 0; j < Width; ++j) {
-                    result += std::to_string(matrix[i][j]) + "\t";
+                    result += std::to_string(matrix[i][j]) + (j == Width - 1 ? "" : "\t");
                 }
-                result += i == 0 ? ']' : (i == Height -1 ? ']' : '|');
-                result += '\n';
+                result += i == 0 ? " ]" : (i == Height -1 ? " ]" : " |");
+                result += "\n";
             }
 
             return result;
