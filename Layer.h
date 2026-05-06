@@ -7,7 +7,7 @@
 #include "Matrix.h"
 
 
-class Layer {
+class Base_Layer {
     protected:
         Matrix W_l; // Weights of layer l
         Matrix b_l; // biases of layer l
@@ -17,18 +17,29 @@ class Layer {
         Matrix& (*ActivationFunction)(Matrix&); // Activation function of layer l
 
 
-        Matrix* A_lm1; // Post activation function matrix of layer l - 1
-        Layer* L_lm1; // Pointer to Layer - 1
-    public:
-        Layer(int size, int prevLayerSize, Layer* PreviousLayer, Matrix& (*activationFunction)(Matrix&)) : ActivationFunction(activationFunction) {
-            W_l = Matrix(size, prevLayerSize);
-            b_l = Matrix(size, 1);
+        Matrix& A_lm1; // Post activation function matrix of layer l - 1
 
-
-            L_lm1 = PreviousLayer;
+        void CalulateZ() {
+            Z_l = A_lm1 * W_l + b_l;
         }
+    public:
+        Base_Layer(int size, Matrix& previous_entry, Matrix& (*activationFunction)(Matrix&))
+            : W_l(Matrix(size, previous_entry.Height)),
+              b_l(Matrix(size, 1)),
+
+              Z_l(Matrix(size, 1)),
+              A_l(Matrix(size, 1)),
+
+              A_lm1(previous_entry),
+
+              ActivationFunction(activationFunction)  {}
 
 
+
+        void CalculateA() {
+            CalulateZ();
+            A_l = ActivationFunction(Z_l);
+        }
 };
 
 
